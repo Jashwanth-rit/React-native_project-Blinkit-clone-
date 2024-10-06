@@ -3,180 +3,78 @@ const { Schema } = mongoose;
 
 // User Schema
 const UserSchema = new Schema({
-  name: {
-    type: String,
-    required: [true, 'Name is required'],
-    minlength: [3, 'Name must be at least 3 characters'],
-    maxlength: [50, 'Name cannot exceed 50 characters'],
-  },
-  email: {
-    type: String,
-    required: [true, 'Email is required'],
-    unique: true,
-    match: [/.+\@.+\..+/, 'Please enter a valid email'],
-  },
-  password: {
-    type: String,
-    required: [true, 'Password is required'],
-    minlength: [8, 'Password must be at least 8 characters'],
-  },
-  role: {
-    type: String,
-    enum: ['customer', 'delivery_partner', 'admin', 'branch'],
-    required: [true, 'Role is required'],
-  }
+  name: { type: String, required: true, minlength: 3, maxlength: 50 },
+  email: { type: String, required: true, unique: true, match: [/.+\@.+\..+/, 'Invalid email'] },
+  password: { type: String, required: true, minlength: 8 },
+  role: { type: String, enum: ['customer', 'delivery_partner', 'admin', 'branch'], required: true }
 });
 
 // Customer Schema
 const CustomerSchema = new Schema({
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-    unique: true,  // One-to-one relationship
-  },
-  address: {
-    type: String,
-    required: [true, 'Address is required'],
-  },
-  location: {
-    type: String,
-    required: [true, 'Branch location is required'],
-  },
-  latitude: {
-    type: Number,
-    required: [true, 'Latitude is required'],
-  },
-  longitude: {
-    type: Number,
-    required: [true, 'Longitude is required'],
-  },
-  phone: {
-    type: String,
-    required: [true, 'Phone number is required'],
-    match: [/^\d{10}$/, 'Please enter a valid 10-digit phone number'],
-  }
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+  address: { type: String, required: true },
+  location: { type: String, required: true },
+  latitude: { type: Number, required: true },
+  longitude: { type: Number, required: true },
+  phone: { type: String, required: true, match: [/^\d{10}$/, 'Invalid phone number'] }
 });
 
 // Delivery Partner Schema
 const DeliveryPartnerSchema = new Schema({
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-    unique: true,  // One-to-one relationship
-  },
-  vehicleNumber: {
-    type: String,
-    required: [true, 'Vehicle number is required'],
-  },
-  location: {
-    type: String,
-    required: [true, 'Branch location is required'],
-  },
-  latitude: {
-    type: Number,
-    required: [true, 'Latitude is required'],
-  },
-  longitude: {
-    type: Number,
-    required: [true, 'Longitude is required'],
-  },
-  availabilityStatus: {
-    type: Boolean,
-    default: true,
-  },
-  deliveriesCompleted: {
-    type: Number,
-    default: 0,
-  },
-  branches: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Branch',  // One-to-many relationship
-  }],
-  address: {
-    type: String,
-    required: [true, 'Address is required'],
-  },
-  phone: {
-    type: String,
-    required: [true, 'Phone number is required'],
-    match: [/^\d{10}$/, 'Please enter a valid 10-digit phone number'],
-  }
-  
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+  vehicleNumber: { type: String, required: true },
+  location: { type: String, required: true },
+  latitude: { type: Number, required: true },
+  longitude: { type: Number, required: true },
+  availabilityStatus: { type: Boolean, default: true },
+  deliveriesCompleted: { type: Number, default: 0 },
+  address: { type: String, required: true },
+  phone: { type: String, required: true, match: [/^\d{10}$/, 'Invalid phone number'] }
 });
 
 // Branch Schema
 const BranchSchema = new Schema({
-    branchName: {
-      type: String,
-      required: [true, 'Branch name is required'],
-    },
-    location: {
-      type: String,
-      required: [true, 'Branch location is required'],
-    },
-    latitude: {
-      type: Number,
-      required: [true, 'Latitude is required'],
-    },
-    longitude: {
-      type: Number,
-      required: [true, 'Longitude is required'],
-    },
-    admin: {
-      type: Schema.Types.ObjectId,
-      ref: 'Admin',
-      required: true,  // Many-to-one relationship
-    },
-    deliveryPartners: [{
-      type: Schema.Types.ObjectId,
-      ref: 'DeliveryPartner',  // One-to-many relationship with Delivery Partner
-    }]
-  });
-  
-// Admin Schema
-const AdminSchema = new Schema({
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-    unique: true,  // One-to-one relationship with User
-  },
-  branches: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Branch',  // One-to-many relationship
-  }],
-  email: {
-    type: String,
-    required: [true, 'Email is required'],
-    unique: true,
-    match: [/.+\@.+\..+/, 'Please enter a valid email'],
-  },
-  password: {
-    type: String,
-    required: [true, 'Password is required'],
-    minlength: [8, 'Password must be at least 8 characters'],
-  },
-  role: {
-    type: String,
-    enum: [ 'admin'],
-    default:['admin']
-  }
+  branchName: { type: String, required: true },
+  location: { type: String, required: true },
+  latitude: { type: Number, required: true },
+  longitude: { type: Number, required: true },
+  admin: { type: Schema.Types.ObjectId, ref: 'Admin', required: true },
+  deliveryPartners: [{ type: Schema.Types.ObjectId, ref: 'DeliveryPartner' }]
 });
 
-// Create models
+// Admin Schema
+const AdminSchema = new Schema({
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+  branches: [{ type: Schema.Types.ObjectId, ref: 'Branch' }],
+  email: { type: String, required: true, unique: true, match: [/.+\@.+\..+/, 'Invalid email'] },
+  password: { type: String, required: true, minlength: 8 },
+  role: { type: String, enum: ['admin'], default: 'admin' }
+});
+
+// Category Schema
+const CategorySchema = new Schema({
+  name: { type: String, required: true, unique: true },
+  description: { type: String },
+  products: [{ type: Schema.Types.ObjectId, ref: 'Product' }]
+});
+
+// Product Schema
+const ProductSchema = new Schema({
+  name: { type: String, required: true },
+  price: { type: Number, required: true, min: 0 },
+  description: { type: String },
+  category: { type: Schema.Types.ObjectId, ref: 'Category', required: true }, // Reference to Category
+  stock: { type: Number, required: true, min: 0 },
+  imageUrl: { type: String },
+  createdAt: { type: Date, default: Date.now }
+});
+
 const User = mongoose.model('User', UserSchema);
 const Customer = mongoose.model('Customer', CustomerSchema);
 const DeliveryPartner = mongoose.model('DeliveryPartner', DeliveryPartnerSchema);
 const Branch = mongoose.model('Branch', BranchSchema);
 const Admin = mongoose.model('Admin', AdminSchema);
+const Category = mongoose.model('Category', CategorySchema);
+const Product = mongoose.model('Product', ProductSchema);
 
-// Export models
-export {
-  User,
-  Customer,
-  DeliveryPartner,
-  Branch,
-  Admin,
-};  
+export { User, Customer, DeliveryPartner, Branch, Admin, Category, Product };

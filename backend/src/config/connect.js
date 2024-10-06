@@ -12,10 +12,10 @@ const mongoURI = process.env.MONGO_URI;
 const connectDB = async () => {
   try {
     // Attempt to connect to MongoDB
-    await mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(mongoURI,{ssl: false}
+     
+ 
+    );
     console.log('MongoDB connected successfully');
   } catch (error) {
     // Handle any connection errors

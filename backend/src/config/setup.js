@@ -1,54 +1,64 @@
 import AdminJS from 'adminjs';
 import AdminJSFastify from '@adminjs/fastify';
-import { User, Customer, DeliveryPartner, Branch, Admin } from '../models/users.js'; // Adjust the path as necessary
+import * as AdminJSMongoose from '@adminjs/mongoose';
+import { User, Customer, DeliveryPartner, Branch, Admin, Category, Product } from '../models/users.js'; // Adjust path as necessary
+import { COOKIE_PASSWORD, mongoStore, authenticate } from './config.js'; // Adjust path if necessary
+import { dark, light, noSidebar } from "@adminjs/themes";
+
+AdminJS.registerAdapter(AdminJSMongoose);
 
 // Initialize AdminJS
-const adminJs = new AdminJS({
+export const adminJs = new AdminJS({
   resources: [
     {
       resource: User,
       options: {
-        // Options for User resource can be defined here
         properties: {
-          password: { isVisible: { list: false, edit: true, show: false, filter: false } }, // Hide password from list and show views
+          password: { isVisible: { list: false, edit: true, show: false, filter: false } },
         },
       },
     },
-    {
-      resource: Customer,
-      options: {
-        // Options for Customer resource can be defined here
-      },
-    },
-    {
-      resource: DeliveryPartner,
-      options: {
-        // Options for Delivery Partner resource can be defined here
-      },
-    },
-    {
-      resource: Branch,
-      options: {
-        // Options for Branch resource can be defined here
-      },
-    },
+    { resource: Customer },
+    { resource: DeliveryPartner },
+    { resource: Branch },
     {
       resource: Admin,
       options: {
-        // Options for Admin resource can be defined here
         properties: {
-          password: { isVisible: { list: false, edit: true, show: false, filter: false } }, // Hide password from list and show views
+          password: { isVisible: { list: false, edit: true, show: false, filter: false } },
         },
       },
     },
+    { resource: Category },
+    { resource: Product },
   ],
-  // You can add more AdminJS options here
   branding: {
-    companyName: 'Your Company Name',
-    softwareBrothers: false, // If you want to hide the "powered by AdminJS" footer
+    companyName: 'Blink_it',
+    softwareBrothers: false,
+    favicon: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Blinkit-yellow-app-icon.svg/1024px-Blinkit-yellow-app-icon.svg.png",
   },
-  rootPath:'/admin'
+  rootPath: '/admin',
+  //defaultTheme: dark.id, // Set default theme to dark
+ // availableThemes: [dark, light], // Available themes: dark, light, noSidebar
 });
 
-// Export the AdminJS instance
-export { adminJs, AdminJSFastify };
+export const buildAdminRouter = async (app) => {
+  return AdminJSFastify.buildAuthenticatedRouter(
+    adminJs,
+    {
+      authenticate,
+      cookiePassword: COOKIE_PASSWORD,
+      cookieName: 'adminjs',
+    },
+    app,
+    {
+      store: mongoStore,
+      saveUninitialized: false,
+      secret: COOKIE_PASSWORD,
+      cookie: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+      },
+    }
+  );
+};
